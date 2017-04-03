@@ -115,15 +115,15 @@ function joinGame (uid, gameId) {
   let me = clients[uid]
 
   if (!games[gameId]) {
-    return socket.emit('game_error', {message: 'That game has ended!'})
+    return me.socket.emit('game_error', {message: 'That game has ended!'})
   }
 
   if (games[gameId].player2 != null) {
-    return socket.emit('game_error', {message: 'That game has already started!'})
+    return me.socket.emit('game_error', {message: 'That game has already started!'})
   }
 
   if (!clients[games[gameId].player1.uid]) {
-    return socket.emit('game_error', {message: 'That game has ended!'})
+    return me.socket.emit('game_error', {message: 'That game has ended!'})
   }
 
   games[gameId].player2 = {
@@ -139,7 +139,7 @@ function joinGame (uid, gameId) {
   let opponent = clients[games[gameId].player1.uid]
 
   if (!opponent) {
-    return socket.emit('game_error', {message: 'Your opponent abruptly dissappeared, what?'})
+    return me.socket.emit('game_error', {message: 'Your opponent abruptly dissappeared, what?'})
   }
 
   opponent.socket.emit('game_start', {gameId: gameId, opponentId: uid, opponentName: me.name})
@@ -197,10 +197,6 @@ function waitingGamesList (uid) {
     totalGames: totalGames,
     list: result
   }
-}
-
-function bombTile (playerIndex, gameId, xTile, yTile) {
-
 }
 
 function determinePlayerById (gameId, uid) {
@@ -263,6 +259,17 @@ function markAllTilesDestroyed (ship, myStrikes) {
   ship.sunken = true
 }
 
+function checkForExistingStrike (myStrikes, x, y) {
+  let found = false
+  for (let i in myStrikes) {
+    let cell = myStrikes[i]
+    if (cell.x === x && cell.y === y) {
+      found = true
+    }
+  }
+  return found
+}
+
 function attemptToBombTile (playerIndex, opponent, game, x, y) {
   let me = game[playerIndex]
   let opponentObj = game[opponent]
@@ -282,8 +289,11 @@ function attemptToBombTile (playerIndex, opponent, game, x, y) {
   }
 
   if (!tileMatch) {
+    if (checkForExistingStrike(me.strikes, x, y)) {
+      return {event: 5, ship: null}
+    }
+
     me.strikes.push({x: x, y: y, destroy: false})
-    //opponentObj.strikes.push({x: x, y: y, destroy: false})
     return {event: 2, ship: null}
   }
 
@@ -302,7 +312,6 @@ function attemptToBombTile (playerIndex, opponent, game, x, y) {
     opponentObj.destructions += 1
 
     if (opponentObj.destructions === ships.length) {
-      console.log('winner: ' + me.uid)
       return {event: 6, ship: shipMatch}
     }
 
@@ -475,6 +484,8 @@ io.on('connection', (socket) => {
 
     switch (result.event) {
       case 5:
+        clients[me.uid].socket.emit('infmessage', 'You\'ve already bombed that tile!')
+        break
       case 1:
         clients[me.uid].socket.emit('infmessage', 'You sunk a ship!')
         break
