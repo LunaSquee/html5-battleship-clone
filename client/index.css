@@ -1,0 +1,155 @@
+body {
+    font-family: "Open Sans";
+    margin: 0;
+    color: black;
+}
+.wrapper {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: 0;
+    background: -moz-radial-gradient(center, ellipse cover, #ffffff 0%, #e5e5e5 100%);
+    background: -webkit-radial-gradient(center, ellipse cover, #ffffff 0%,#e5e5e5 100%);
+    background: radial-gradient(ellipse at center, #ffffff 0%,#e5e5e5 100%);
+    background-repeat: no-repeat;
+}
+.screen {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+.dialog {
+    position: absolute;
+    width: 260px;
+    padding: 20px;
+    left: 0;
+    right: 0;
+    margin: auto;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    top: 20%;
+}
+h1, h2, h3 {
+    margin-top: 0;
+}
+input[type="text"] {
+    background-color: #f9f9f9;
+    border: 2px solid #ddd;
+    border-radius: 2px;
+    font-size: 125%;
+    padding: 2px;
+    box-shadow: inset 1px 1px 10px #ddd;
+    color: black;
+}
+.dialog input {
+    margin-bottom: 10px;
+    width: 95%;
+}
+button {
+    background: #ffffff;
+    background: -moz-linear-gradient(top, #ffffff 0%, #e5e5e5 100%);
+    background: -webkit-linear-gradient(top, #ffffff 0%,#e5e5e5 100%);
+    background: linear-gradient(to bottom, #ffffff 0%,#e5e5e5 100%);
+    border: 1px solid #ddd;
+    padding: 5px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    color: black;
+}
+button:hover {
+    background: -moz-linear-gradient(top, #ffffff 0%, #e8e8e8 100%);
+    background: -webkit-linear-gradient(top, #ffffff 0%,#e8e8e8 100%);
+    background: linear-gradient(to bottom, #ffffff 0%,#e8e8e8 100%);
+}
+canvas {
+    width: 512px;
+    height: 512px;
+    background-color: #03A9F4;
+    margin: 10px;
+    /*border: 5px solid #2196F3;*/
+}
+.boxlayout {
+    text-align: center;
+}
+.box {
+    text-align: left;
+    width: 25%;
+    display: inline-block;
+    height: 400px;
+    margin: 20px;
+    background-color: #fff;
+    padding: 20px;
+    min-width: 280px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    box-shadow: 4px 4px 10px #ddd;
+    vertical-align: top;
+}
+.stat {
+    display: block;
+}
+#waitlist {
+    margin-bottom: 5px;
+}
+#waitlist .red, #waitlist .green {
+    padding: 10px;
+}
+#waitlist .red {
+    background-color: #ffd5d5;
+    border: 1px solid #ff5c5c;
+}
+#waitlist .green {
+    background-color: #daffda;
+    border: 1px solid #00f700;
+}
+.waitlistInstance {
+    background-color: #f5f5f5;
+    padding: 5px;
+    max-height: 240px;
+    overflow-y: auto;
+}
+.waitlistInstance:nth-child(odd) {
+    background-color: #f9f9f9;
+}
+.joinBtn {
+    float: right;
+    color: #03A9F4;
+    text-decoration: none;
+    font-weight: bold;
+    padding: 0px 10px;
+}
+.joinBtn:hover {
+    text-decoration: underline;
+}
+.header {
+    height: 40px;
+    line-height: 2.5;
+    padding: 5px 20px;
+    background-color: #fff;
+    border-bottom: 1px solid #ddd;
+}
+button#leave {
+    float: right;
+    line-height: 2;
+}
+.sidebar {
+    float: left;
+    background-color: #fff;
+    padding: 10px;
+    position: absolute;
+    top: 51px;
+    bottom: 0;
+}
+#g_s_stat {
+    margin-top: 20px;
+    border-top: 1px solid #ddd;
+    color: #119286;
+    font-weight: bold;
+    padding-top: 5px;
+    width: 200px;
+}
+#game_canvas {
+    margin-left: 265px;
+}

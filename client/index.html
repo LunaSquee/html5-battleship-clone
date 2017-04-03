@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/2.3.0/mustache.min.js"></script>
+		<script src="/socket.io/socket.io.js"></script>
+		<script type="text/javascript" src="./index.js"></script>
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+		<link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Open+Sans">
+		<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+		<link rel="stylesheet" type="text/css" href="./index.css">
+		<title>HTML5 Battleship (simplified version)</title>
+	</head>
+	<body>
+		<div class="wrapper">
+			<div class="screen" id="start">
+				<div class="dialog">
+					<h1>Enter your name</h1>
+					<p id="warning_message"></p>
+					<input type="text" id="player_name">
+					<button id="sock_player_init">Join server</button>
+				</div>
+			</div>
+			<div class="screen boxlayout" style="display: none;" id="selection">
+				<div class="box">
+					<h1>Statistics</h1>
+					<span class="stat">Players in game: <span id="stats_players"></span></span>
+					<span class="stat">Total games since server started: <span id="stats_games"></span></span>
+					<span class="stat">You've played in <span id="stats_clientgames"></span> matches this session.</span>
+				</div> 
+				<div class="box">
+					<h1>Players waiting</h1>
+					<div id="waitlist">
+						<p><i class="fa fa-spinner fa-spin fa-fw"></i>&nbsp;Loading..</p>
+					</div>
+					<button id="waitlist_quit" style="display: none;">Cancel</button>
+					<div class="idbuttons">
+						<button id="waitlist_join">Join Wait List</button>
+						<button id="waitlist_join_random">Join Random Game</button>
+						<button id="waitlist_join_refresh">Refresh</button>
+					</div>
+				</div> 
+				<div class="box">
+					<h1>How to play</h1>
+					<p>This is a puzzle game inspired by <a href="https://en.wikipedia.org/wiki/Battleship_(puzzle)" target="_blank">Battleship</a>, however this one works quite differently.</p>
+					<ul>
+						<li>You start off by placing your ships onto the board.</li>
+						<li>Once you and your opponent finish placing the ships, the game begins.</li>
+						<li>When it's your turn, you click on a square to attempt to bomb an opposing ship.</li>
+						<li>If you miss, it's your opponents turn. If you strike, you can bomb more until you miss again.</li>
+						<li>You must destroy most of the opponents's ship to sink it.</li>
+						<li>You win the game by sinking all of the opponent's ships!</li>
+					</ul>
+				</div>
+			</div>
+			<div class="screen game gamelayout" style="display: none;" id="game">
+				<div class="header">You're playing against <span id="opponent_name">null</span> <button id="leave">Leave game</button></div>
+				<canvas id="game_canvas" width="513" height="513"></canvas>
+				<div class="sidebar">
+					<span class="stat">You have <span id="g_s_num">0</span> ships left.</span>
+					<span class="stat">Your opponent has <span id="o_s_num">0</span> ships left.</span>
+					<span class="stat" id="g_s_stat">Your turn.</span>
+				</div>
+			</div>
+		</div>
+		<script type="text/mustache" id="waitlistInstance">
+			<div class="waitlistInstance">
+				<span class="name">{{name}}</span>
+				<a href="#" class="joinBtn" onclick="joinWaiting('{{gameId}}')">Join</a>
+			</div>
+		</script>
+	</body>
+</html>
