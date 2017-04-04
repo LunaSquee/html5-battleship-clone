@@ -68,7 +68,6 @@ canvas {
     height: 512px;
     background-color: #03A9F4;
     margin: 10px;
-    /*border: 5px solid #2196F3;*/
 }
 .boxlayout {
     text-align: center;
@@ -151,5 +150,47 @@ button#leave {
     width: 200px;
 }
 #game_canvas {
-    margin-left: 265px;
+    margin-left: 300px;
+}
+.endresult {
+    text-align: center;
+}
+.result {
+    width: 530px;
+    display: inline-block;
+}
+button#lobby {
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: 15px;
+}
+.bigstat {
+    font-size: 200%;
+    font-weight: bold;
+    margin-bottom: 50px;
+    margin-top: 10px;
+}
+.message.t_event {
+    color: #b5b5b5;
+}
+.message .sender {
+    color: red;
+}
+.message.me .sender {
+    color: blue !important;
+}
+.chatbox {
+    margin-top: 50px;
+    padding: 5px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+#messages {
+    height: 250px;
+    background-color: #fff;
+    border-radius: 5px;
+    overflow-y: scroll;
+    word-wrap: break-word;
+    white-space: pre;
 }

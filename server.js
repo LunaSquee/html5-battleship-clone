@@ -4,17 +4,18 @@ const http = require('http')
 const path = require('path')
 
 // TODO LIST:
-// * More ships
 // * Timer
 // * Chat box
-// * Side-by-side board display
 
 const ships = [
-  {name: 'biggest', tiles: 5, destCount: 4},
-  {name: 'bigger', tiles: 4, destCount: 3},
-  {name: 'medium', tiles: 3, destCount: 2},
-  {name: 'smaller', tiles: 3, destCount: 2},
-  {name: 'smallest', tiles: 2, destCount: 1}
+  {name: 'aircraft_carrier1', tiles: 5, destCount: 4},
+  {name: 'aircraft_carrier2', tiles: 5, destCount: 4},
+  {name: 'cruiser', tiles: 4, destCount: 3},
+  {name: 'ferry', tiles: 3, destCount: 2},
+  {name: 'fishing_ship', tiles: 3, destCount: 2},
+  {name: 'destroyer', tiles: 2, destCount: 1},
+  {name: 'submarine1', tiles: 1, destCount: 1},
+  {name: 'submarine2', tiles: 1, destCount: 1}
 ]
 
 let app = express()
@@ -201,6 +202,8 @@ function waitingGamesList (uid) {
 
 function determinePlayerById (gameId, uid) {
   let game = games[gameId]
+
+  if (!game) return null
 
   if (game.player1 && game.player1.uid === uid) {
     return 'player1'
@@ -476,7 +479,7 @@ io.on('connection', (socket) => {
     let me = game[playerInGame]
 
     if (result.ship) {
-      clients[opponentObj.uid].socket.emit('updateShip', result.ship)
+      clients[opponentObj.uid].socket.emit('update_ship', result.ship)
     }
 
     clients[me.uid].socket.emit('update_hits', {me: true, strikes: me.strikes})
@@ -499,6 +502,8 @@ io.on('connection', (socket) => {
         clients[me.uid].socket.emit('infmessage', 'You missed!')
         break
       case 6:
+        clients[opponentObj.uid].socket.emit('display_result', {enemyShips: me.ships, gameId: data.gameId})
+        clients[me.uid].socket.emit('display_result', {enemyShips: opponentObj.ships, gameId: data.gameId})
         endGame(data.gameId, client, opponentObj.uid)
         break
     }
@@ -511,6 +516,35 @@ io.on('connection', (socket) => {
       opponentShipsLeft: ships.length - me.destructions,
       myShipsLeft: ships.length - opponentObj.destructions
     })
+  })
+
+  socket.on('chat_send', (data) => {
+    let client = clientsBySocketID(socket.conn.id)
+    
+    if (!client) {
+      socket.emit('game_error', {message: 'You are not logged in properly!'})
+      socket.emit('force_relog')
+      return
+    }
+
+    let game = games[data.gameId]
+    let playerInGame = determinePlayerById(data.gameId, client)
+
+    if (!playerInGame) {
+      socket.emit('game_error', {message: 'unexpected error. code: 763'})
+      return
+    }
+
+    let opponent = 'player2'
+  
+    if (playerInGame === 'player2') {
+      opponent = 'player1'
+    }
+
+    let opponentObj = game[opponent]
+    let me = game[playerInGame]
+
+    clients[opponentObj.uid].socket.emit('chat', {name: clients[me.uid].name, message: data.message})
   })
 
   socket.on('disconnect', () => {

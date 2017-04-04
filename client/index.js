@@ -10,12 +10,9 @@
     played: 0,
     Game: {
       gameId: null,
-      inGame: false,
       myTurn: true,
       opponentID: '',
       opponentName: '',
-      ships: 0,
-      oShips: 0,
       gridHome: {ships: [], strikes: []},
       gridOpponent: []
     }
@@ -119,6 +116,52 @@
       GameDrawer.boardStaticState.onload = () => {
         GameDrawer.gameLoop()
       }
+    },
+
+    endResultCellRenderer(cells, ctx, ship) {
+      for (let i in cells) {
+        let cell = cells[i]
+        let destVar = (cell.destroyed != null ? cell.destroyed : cell.destroy)
+        let color = '#dddd00'
+        if (destVar || (ship != null && ship.sunken)) {
+          color = '#ff0000'
+        } else {
+          if (ship) {
+            color = '#dddddd'
+          }
+        }
+        ctx.fillStyle = color
+        ctx.fillRect(cell.x * GameDrawer.gridSize, cell.y * GameDrawer.gridSize, GameDrawer.gridSize, GameDrawer.gridSize)
+      }
+    },
+
+    resultScreen(myShips, enemyShips, myHits, enemyHits) {
+      let c1 = Battleship.DOM.resultScreen.querySelector('#opponent_result_canvas')
+      let c2 = Battleship.DOM.resultScreen.querySelector('#my_result_canvas')
+      let ctx1 = c1.getContext('2d')
+      let ctx2 = c2.getContext('2d')
+
+      ctx1.clearRect(0, 0, Battleship.canvasW, Battleship.canvasH)
+      ctx2.clearRect(0, 0, Battleship.canvasW, Battleship.canvasH)
+
+      ctx1.drawImage(GameDrawer.boardStaticState, 0, 0)
+      ctx2.drawImage(GameDrawer.boardStaticState, 0, 0)
+
+      GameDrawer.endResultCellRenderer(myHits, ctx1, null)
+
+      // Render my ship tiles
+      for (let i in myShips) {
+        let ship = myShips[i]
+        GameDrawer.endResultCellRenderer(ship.cells, ctx2, ship)
+      }
+
+      // Render enemy ship tiles
+      for (let i in enemyShips) {
+        let ship = enemyShips[i]
+        GameDrawer.endResultCellRenderer(ship.cells, ctx1, ship)
+      }
+
+      GameDrawer.endResultCellRenderer(enemyHits, ctx2, null)
     },
 
     click: () => {
@@ -377,6 +420,8 @@
     Battleship.Game.opponentName = game.opponentName
     Battleship.DOM.opponentName.innerHTML = game.opponentName
 
+    Battleship.DOM.chatbox.innerHTML = ''
+
     io.emit('game_poll', {gameId: Battleship.Game.gameId})
 
     logStatus('Place your ships onto the board.<br>Press `r` to rotate')
@@ -386,6 +431,7 @@
     Battleship.DOM.waitlistBtns.style.display = 'block'
     Battleship.DOM.waitlistQuit.style.display = 'none'
     GameDrawer.startGame()
+    addChatMessage('event', null, 'Game started!')
   }
 
   function attemptJoin (name) {
@@ -446,8 +492,10 @@
     if (reason === 1) {
       if (winner === true) {
         alert('You won!')
+        Battleship.DOM.winStatus.innerHTML = 'Won'
       } else {
         alert('You lost.')
+        Battleship.DOM.winStatus.innerHTML = 'Lost'
       }
     }
 
@@ -458,8 +506,15 @@
     Battleship.locked = false
     Battleship.Game.gameId = null
     io.emit('poll_games')
+
     Battleship.DOM.gameScreen.style.display = 'none'
-    Battleship.DOM.selectionScreen.style.display = 'block'
+    if (reason === 1) {
+      Battleship.DOM.resultScreen.style.display = 'block'
+    } else {
+      Battleship.DOM.selectionScreen.style.display = 'block'
+      Battleship.DOM.resultScreen.style.display = 'none'
+    }
+
     Battleship.DOM.waitlistBtns.style.display = 'block'
     Battleship.DOM.waitlistQuit.style.display = 'none'
 
@@ -475,16 +530,37 @@
     Battleship.DOM.gameScreen.style.display = 'none'
     Battleship.DOM.selectionScreen.style.display = 'none'
     Battleship.DOM.startScreen.style.display = 'block'
+    Battleship.DOM.resultScreen.style.display = 'none'
 
     Battleship.locked = false
     Battleship.playerName = ''
     Battleship.Game.gameId = null
   }
 
+  function escapeHtml(unsafe) {
+    return unsafe
+           .replace(/&/g, "&amp;")
+           .replace(/</g, "&lt;")
+           .replace(/>/g, "&gt;")
+           .replace(/"/g, "&quot;")
+           .replace(/'/g, "&#039;")
+  }
+
+  function addChatMessage (type, senderName, message) {
+    let msgElem = '<div class="message t_' + type + '">'
+    if (senderName) {
+      msgElem += '<span class="sender">' + senderName + '</span>&nbsp;'
+    }
+    msgElem += '<span class="line">' + escapeHtml(message) + '</span>'
+
+    Battleship.DOM.chatbox.innerHTML += msgElem
+  }
+
   window.onload = () => {
     const startScreen = Battleship.DOM.startScreen = $.querySelector('#start')
     const selectionScreen = Battleship.DOM.selectionScreen = $.querySelector('#selection')
     const gameScreen = Battleship.DOM.gameScreen = $.querySelector('#game')
+    const resultScreen = Battleship.DOM.resultScreen = $.querySelector('#endresult')
 
     const warning = Battleship.DOM.joinWarn = startScreen.querySelector('#warning_message')
     const playerName = startScreen.querySelector('#player_name')
@@ -515,6 +591,12 @@
     const dataMineDestroyed = Battleship.DOM.dataMineDestroyed = gameScreen.querySelector('#g_s_num')
     Battleship.DOM.statusCurrent = gameScreen.querySelector('#g_s_stat')
 
+    const doneBtn = resultScreen.querySelector('#lobby')
+    Battleship.DOM.winStatus = resultScreen.querySelector('#wonlost')
+
+    const chatbox = Battleship.DOM.chatbox = gameScreen.querySelector('#messages')
+    const chatfield = Battleship.DOM.chatfield = gameScreen.querySelector('#message_send')
+
     GameDrawer.initialize()
 
     let uname = getStored('name')
@@ -527,6 +609,16 @@
         attemptJoin(playerName.value)
       }
     }, false)
+
+    chatfield.addEventListener('keydown', (e) => {
+      if (e.keyCode === 13 && Battleship.Game.gameId) {
+        if (chatfield.value != '') {
+          io.emit('chat_send', {message: chatfield.value, gameId: Battleship.Game.gameId})
+          addChatMessage('chat me', Battleship.playerName, chatfield.value)
+          chatfield.value = ''
+        }
+      }
+    })
 
     startButton.addEventListener('click', (e) => {
       attemptJoin(playerName.value)
@@ -542,6 +634,10 @@
     refresh.addEventListener('click', (e) => {
       if (Battleship.locked) return
       io.emit('poll_games')
+    })
+
+    doneBtn.addEventListener('click', (e) => {
+      gameEnds(0, null)
     })
 
     waitlistQuit.addEventListener('click', (e) => {
@@ -568,6 +664,10 @@
       }
     })
 
+    io.on('chat', (data) => {
+      addChatMessage('chat', data.name, data.message)
+    })
+
     io.on('update_hits', (data) => {
       if (data.me) {
         Battleship.Game.gridHome.strikes = data.strikes
@@ -576,7 +676,7 @@
       }
     })
 
-    io.on('updateShip', (dship) => {
+    io.on('update_ship', (dship) => {
       for (let i in Battleship.Game.gridHome.ships) {
         let ship = Battleship.Game.gridHome.ships[i]
         if (ship.name === dship.name) {
@@ -621,6 +721,10 @@
 
     io.on('force_relog', () => {
       forceRelogin()
+    })
+
+    io.on('display_result', (data) => {
+      GameDrawer.resultScreen(Battleship.Game.gridHome.ships, data.enemyShips, Battleship.Game.gridHome.strikes, Battleship.Game.gridOpponent)
     })
 
     io.on('game_end', (data) => {

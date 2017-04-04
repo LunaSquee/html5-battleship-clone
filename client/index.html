@@ -60,6 +60,24 @@
 					<span class="stat">You have <span id="g_s_num">0</span> ships left.</span>
 					<span class="stat">Your opponent has <span id="o_s_num">0</span> ships left.</span>
 					<span class="stat" id="g_s_stat">Your turn.</span>
+					<div class="chatbox">
+						<div class="letterbox" id="messages"></div>
+						<input type="text" id="message_send" placeholder="Send message..">
+					</div>
+				</div>
+			</div>
+			<div class="screen endresult" style="display: none;" id="endresult">
+				<div class="bigstat">
+					You <span id="wonlost">Lost</span>!
+					<button id="lobby">Back to the lobby</button>
+				</div>
+				<div class="boxlarge canvasbox result">
+					<h1>Opponent's ships</h1>
+					<canvas id="opponent_result_canvas" width="513" height="513"></canvas>
+				</div>
+				<div class="boxlarge canvasbox result">
+					<h1>Your ships</h1>
+					<canvas id="my_result_canvas" width="513" height="513"></canvas>
 				</div>
 			</div>
 		</div>
