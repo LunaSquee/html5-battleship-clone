@@ -192,5 +192,6 @@ button#lobby {
     border-radius: 5px;
     overflow-y: scroll;
     word-wrap: break-word;
-    white-space: pre;
+    white-space: pre-line;
+    max-width: 254px;
 }

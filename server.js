@@ -11,10 +11,10 @@ const ships = [
   {name: 'aircraft_carrier2', tiles: 5, destCount: 4},
   {name: 'cruiser', tiles: 4, destCount: 3},
   {name: 'ferry', tiles: 3, destCount: 2},
+  {name: 'ferry2', tiles: 3, destCount: 2},
   {name: 'fishing_ship', tiles: 3, destCount: 2},
   {name: 'destroyer', tiles: 2, destCount: 1},
-  {name: 'submarine1', tiles: 1, destCount: 1},
-  {name: 'submarine2', tiles: 1, destCount: 1}
+  {name: 'submarine1', tiles: 1, destCount: 1}
 ]
 
 let app = express()
