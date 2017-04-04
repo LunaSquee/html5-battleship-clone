@@ -554,6 +554,7 @@
     msgElem += '<span class="line">' + escapeHtml(message) + '</span>'
 
     Battleship.DOM.chatbox.innerHTML += msgElem
+    Battleship.DOM.chatbox.scrollTop = Battleship.DOM.chatbox.scrollHeight
   }
 
   window.onload = () => {

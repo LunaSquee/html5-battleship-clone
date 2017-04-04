@@ -5,7 +5,6 @@ const path = require('path')
 
 // TODO LIST:
 // * Timer
-// * Chat box
 
 const ships = [
   {name: 'aircraft_carrier1', tiles: 5, destCount: 4},
@@ -70,6 +69,16 @@ function clientsBySocketID (id) {
   return result
 }
 
+function determineOpponent (myIndex) {
+  let opponent = 'player2'
+  
+  if (myIndex === 'player2') {
+    opponent = 'player1'
+  }
+
+  return opponent
+}
+
 function killGamesClientIsIn (uid) {
   for (let gameId in games) {
     let game = games[gameId]
@@ -108,7 +117,8 @@ function createNewGame (uid) {
     player2: null,
     isWaiting: true,
     turn: 1,
-    started: new Date()
+    created: new Date(),
+    started: null
   }
 }
 
@@ -136,6 +146,7 @@ function joinGame (uid, gameId) {
   }
 
   games[gameId].isWaiting = false
+  games[gameId].started = new Date()
 
   let opponent = clients[games[gameId].player1.uid]
 
@@ -427,11 +438,7 @@ io.on('connection', (socket) => {
 
     if (meObj.ships.length === ships.length) {
       meObj.placed = true
-      let opponent = 'player2'
-
-      if (playerInGame === 'player2') {
-        opponent = 'player1'
-      }
+      let opponent = determineOpponent(playerInGame)
 
       if (game[opponent].placed) {
         game.turn = 'player1'
@@ -467,12 +474,7 @@ io.on('connection', (socket) => {
       return
     }
 
-    let opponent = 'player2'
-  
-    if (playerInGame === 'player2') {
-      opponent = 'player1'
-    }
-
+    let opponent = determineOpponent(playerInGame)
     let result = attemptToBombTile(playerInGame, opponent, game, data.x, data.y)
 
     let opponentObj = game[opponent]
@@ -512,6 +514,7 @@ io.on('connection', (socket) => {
       opponentShipsLeft: ships.length - opponentObj.destructions,
       myShipsLeft: ships.length - me.destructions
     })
+
     clients[opponentObj.uid].socket.emit('current_stats', {
       opponentShipsLeft: ships.length - me.destructions,
       myShipsLeft: ships.length - opponentObj.destructions
@@ -535,12 +538,7 @@ io.on('connection', (socket) => {
       return
     }
 
-    let opponent = 'player2'
-  
-    if (playerInGame === 'player2') {
-      opponent = 'player1'
-    }
-
+    let opponent = determineOpponent(playerInGame)
     let opponentObj = game[opponent]
     let me = game[playerInGame]
 
