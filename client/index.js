@@ -36,6 +36,11 @@
     html = window.Mustache.to_html(html, data)
     return html
   }
+  
+  function modalAlert (msg) {
+    Battleship.DOM.modalMsg.innerHTML = msg
+    Battleship.DOM.alertModal.showModal()
+  }
 
   function pointerOnCanvas (e) {
     let x
@@ -413,7 +418,7 @@
   function joinGame (game) {
     Battleship.played += 1
 
-    alert('Game has started!')
+    modalAlert('Game has started!')
     //io.emit('leave_game', {gameId: Battleship.Game.gameId})
     Battleship.Game.gameId = game.gameId
     Battleship.Game.opponentID = game.opponentId
@@ -491,16 +496,16 @@
   function gameEnds (reason, winner) {
     if (reason === 1) {
       if (winner === true) {
-        alert('You won!')
+        modalAlert('You won!')
         Battleship.DOM.winStatus.innerHTML = 'Won'
       } else {
-        alert('You lost.')
+        modalAlert('You lost.')
         Battleship.DOM.winStatus.innerHTML = 'Lost'
       }
     }
 
     if (reason === 0 && winner === true) {
-      alert('Your opponent left the game.')
+      modalAlert('Your opponent left the game.')
     }
 
     Battleship.locked = false
@@ -557,6 +562,18 @@
     Battleship.DOM.chatbox.scrollTop = Battleship.DOM.chatbox.scrollHeight
   }
 
+  function unsupportedModalFix (elem) {
+    if (!elem.showModal) {
+      elem.className = 'unsupported'
+      elem.showModal = () => {
+        elem.style.display = 'block'
+      }
+      elem.close = () => {
+        elem.style.display = 'none'
+      }
+    }
+  }
+
   window.onload = () => {
     const startScreen = Battleship.DOM.startScreen = $.querySelector('#start')
     const selectionScreen = Battleship.DOM.selectionScreen = $.querySelector('#selection')
@@ -598,6 +615,11 @@
     const chatbox = Battleship.DOM.chatbox = gameScreen.querySelector('#messages')
     const chatfield = Battleship.DOM.chatfield = gameScreen.querySelector('#message_send')
 
+    const alertModal = Battleship.DOM.alertModal = $.querySelector('#alertModal')
+    const alertClose = alertModal.querySelector('#close')
+    Battleship.DOM.modalMsg = alertModal.querySelector('#am_text')
+    unsupportedModalFix(alertModal)
+
     GameDrawer.initialize()
 
     let uname = getStored('name')
@@ -610,6 +632,10 @@
         attemptJoin(playerName.value)
       }
     }, false)
+
+    alertClose.addEventListener('click', () => {
+      alertModal.close()
+    })
 
     chatfield.addEventListener('keydown', (e) => {
       if (e.keyCode === 13 && Battleship.Game.gameId) {
@@ -715,7 +741,7 @@
     })
 
     io.on('game_error', (data) => {
-      alert(data.message)
+      modalAlert(data.message)
       gameEnds(0, null)
       io.emit('poll_games')
     })

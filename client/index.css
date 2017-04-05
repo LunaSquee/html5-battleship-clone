@@ -185,6 +185,10 @@ button#lobby {
     background-color: #f9f9f9;
     border: 1px solid #ddd;
     border-radius: 5px;
+    max-width: 254px;
+}
+.chatbox input {
+    max-width: 245px;
 }
 #messages {
     height: 250px;
@@ -194,4 +198,35 @@ button#lobby {
     word-wrap: break-word;
     white-space: pre-line;
     max-width: 254px;
+}
+#alertModal {
+    top: 80px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 120%;
+    text-align: center;
+}
+#am_text {
+    display: block;
+}
+#alertModal button {
+    font-size: 80%;
+    margin-top: 10px;
+}
+dialog.unsupported {
+    position: absolute;
+    left: 0px;
+    right: 0px;
+    width: -moz-fit-content;
+    height: -moz-fit-content;
+    width: -webkit-fit-content;
+    height: -webkit-fit-content;
+    width: fit-content;
+    height: fit-content;
+    color: black;
+    margin: auto;
+    padding: 1em;
+    background: white;
+    display: none;
+    z-index: 10;
 }
