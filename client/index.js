@@ -640,7 +640,7 @@
     const waitlistQuit = Battleship.DOM.waitlistQuit = selectionScreen.querySelector('#waitlist_quit')
     const waitlistBtns = Battleship.DOM.waitlistBtns = selectionScreen.querySelector('.idbuttons')
 
-    const stat_online = selectionScreen.querySelector('#stats_online')
+    const stat_online = selectionScreen.querySelector('#stats_players_online')
     const stat_ingame = selectionScreen.querySelector('#stats_players')
     const stat_total = selectionScreen.querySelector('#stats_games')
     const stat_client = selectionScreen.querySelector('#stats_clientgames')
