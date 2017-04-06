@@ -205,6 +205,7 @@ function waitingGamesList (uid) {
   }
 
   return {
+    online: Object.keys(clients).length,
     sessions: gamesInSession,
     totalGames: totalGames,
     list: result
@@ -466,6 +467,8 @@ io.on('connection', (socket) => {
       return
     }
 
+    if (!data.gameId) return
+
     let game = games[data.gameId]
     let playerInGame = determinePlayerById(data.gameId, client)
 
@@ -529,6 +532,8 @@ io.on('connection', (socket) => {
       socket.emit('force_relog')
       return
     }
+
+    if (!data.gameId) return
 
     let game = games[data.gameId]
     let playerInGame = determinePlayerById(data.gameId, client)

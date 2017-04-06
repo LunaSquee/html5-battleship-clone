@@ -18,6 +18,38 @@
     }
   }
 
+  let activityNotice = {
+    timeout: null,
+    doctitle: '',
+    focused: true,
+
+    off: (temp) => {
+      document.title = activityNotice.doctitle
+
+      clearTimeout(activityNotice.timeout)
+      activityNotice.timeout = null
+      
+      if (temp) {
+        activityNotice.timeout = setTimeout(() => {
+          activityNotice.on(temp)
+        }, 1000)
+      }
+    },
+    on: (msg) => {
+      if (activityNotice.timeout) {
+        activityNotice.off(null)
+      }
+
+      if (activityNotice.focused) return
+      
+      document.title = msg
+      
+      activityNotice.timeout = setTimeout(() => {
+        activityNotice.off(msg)
+      }, 1000)
+    }
+  }
+
   window.requestAnimFrame = (function() {
     return window.requestAnimationFrame       ||
            window.webkitRequestAnimationFrame ||
@@ -40,6 +72,7 @@
   function modalAlert (msg) {
     Battleship.DOM.modalMsg.innerHTML = msg
     Battleship.DOM.alertModal.showModal()
+    activityNotice.on(msg)
   }
 
   function pointerOnCanvas (e) {
@@ -418,7 +451,7 @@
   function joinGame (game) {
     Battleship.played += 1
 
-    modalAlert('Game has started!')
+    activityNotice.on('Game has started!')
     //io.emit('leave_game', {gameId: Battleship.Game.gameId})
     Battleship.Game.gameId = game.gameId
     Battleship.Game.opponentID = game.opponentId
@@ -496,10 +529,10 @@
   function gameEnds (reason, winner) {
     if (reason === 1) {
       if (winner === true) {
-        modalAlert('You won!')
+        activityNotice.on('You won!')
         Battleship.DOM.winStatus.innerHTML = 'Won'
       } else {
-        modalAlert('You lost.')
+        activityNotice.on('You lost.')
         Battleship.DOM.winStatus.innerHTML = 'Lost'
       }
     }
@@ -552,10 +585,16 @@
   }
 
   function addChatMessage (type, senderName, message) {
+    if (type === 'chat') {
+      activityNotice.on('Chat message!')
+    }
+
     let msgElem = '<div class="message t_' + type + '">'
+    
     if (senderName) {
       msgElem += '<span class="sender">' + senderName + '</span>&nbsp;'
     }
+    
     msgElem += '<span class="line">' + escapeHtml(message) + '</span>'
 
     Battleship.DOM.chatbox.innerHTML += msgElem
@@ -572,6 +611,15 @@
         elem.style.display = 'none'
       }
     }
+  }
+
+  window.onfocus = () => {
+    activityNotice.focused = true
+    activityNotice.off(null)
+  }
+
+  window.onblur = () => {
+    activityNotice.focused = false
   }
 
   window.onload = () => {
@@ -592,6 +640,7 @@
     const waitlistQuit = Battleship.DOM.waitlistQuit = selectionScreen.querySelector('#waitlist_quit')
     const waitlistBtns = Battleship.DOM.waitlistBtns = selectionScreen.querySelector('.idbuttons')
 
+    const stat_online = selectionScreen.querySelector('#stats_online')
     const stat_ingame = selectionScreen.querySelector('#stats_players')
     const stat_total = selectionScreen.querySelector('#stats_games')
     const stat_client = selectionScreen.querySelector('#stats_clientgames')
@@ -647,6 +696,10 @@
       }
     })
 
+    chatbox.addEventListener('click', (e) => {
+      chatfield.focus()
+    })
+ 
     startButton.addEventListener('click', (e) => {
       attemptJoin(playerName.value)
     }, false)
@@ -687,7 +740,7 @@
         logStatus('It\'s your turn!<br>Click anywhere on the grid to attempt to destroy enemy ships.')
       } else {
         Battleship.Game.myTurn = false
-        logStatus('Your opponent\'s turn.')
+        logStatus(Battleship.Game.opponentName + '\'s turn.')
       }
     })
 
@@ -785,6 +838,10 @@
         stat_total.innerHTML = data.totalGames
       }
 
+      if (data.online != null) {
+        stat_online.innerHTML = data.online
+      }
+
       stat_client.innerHTML = Battleship.played
 
       if (!list.length) {
@@ -816,5 +873,7 @@
       forceRelogin()
       logWarning('Server disconnected')
     })
+
+    activityNotice.doctitle = document.title
   }
 })(document)
