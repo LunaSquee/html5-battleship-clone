@@ -2,6 +2,7 @@
   let io = window.io.connect()
   let Battleship = {
     DOM: {},
+    mobile: false,
     playerName: '',
     playerID: '',
     verified: null,
@@ -132,6 +133,10 @@
 
       Battleship.ctx.clearRect(0, 0, Battleship.canvasW, Battleship.canvasH)
       Battleship.Game.myTurn = true
+
+      if (Battleship.mobile) {
+        Battleship.DOM.mobRotate.style.display = 'block'
+      }
 
       let p = 0
       let context = Battleship.ctx
@@ -360,6 +365,16 @@
       requestAnimFrame(GameDrawer.gameLoop)
     },
 
+    rotate: () => {
+      if (GameDrawer.placingShips) {
+        if (GameDrawer.shipOrientation === 0) {
+          GameDrawer.shipOrientation = 1
+        } else {
+          GameDrawer.shipOrientation = 0
+        }
+      } 
+    },
+
     initialize: () => {
       Battleship.DOM.canvas.addEventListener('mousemove', (e) => {
         let posOnCanvas = pointerOnCanvas(e)
@@ -377,18 +392,26 @@
         GameDrawer.mouseOn = false
       })
 
+      Battleship.DOM.canvas.addEventListener('contextmenu', (e) => {
+        e.preventDefault()
+
+        GameDrawer.rotate()
+
+        return false
+      })
+
       Battleship.DOM.canvas.addEventListener('click', (e) => {
         GameDrawer.click()
       })
 
-      document.addEventListener('keydown', (e) => {
-        if (GameDrawer.placingShips && e.keyCode === 82) {
-          if (GameDrawer.shipOrientation === 0) {
-            GameDrawer.shipOrientation = 1
-          } else {
-            GameDrawer.shipOrientation = 0
-          }
-        } 
+      Battleship.DOM.canvas.addEventListener('keydown', (e) => {
+        if (e.keyCode === 82) {
+          GameDrawer.rotate()
+        }
+      })
+
+      Battleship.DOM.mobRotate.addEventListener('click', (e) => {
+        GameDrawer.rotate()
       })
     }
   }
@@ -462,7 +485,7 @@
 
     io.emit('game_poll', {gameId: Battleship.Game.gameId})
 
-    logStatus('Place your ships onto the board.<br>Press `r` to rotate')
+    logStatus('Place your ships onto the board.<br>Right Click to rotate')
 
     Battleship.DOM.gameScreen.style.display = 'block'
     Battleship.DOM.selectionScreen.style.display = 'none'
@@ -669,6 +692,12 @@
     Battleship.DOM.modalMsg = alertModal.querySelector('#am_text')
     unsupportedModalFix(alertModal)
 
+    const mobRotate = Battleship.DOM.mobRotate = gameScreen.querySelector('#mob_rotate')
+
+    if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|BB|PlayBook|IEMobile|Windows Phone|Kindle|Silk|Opera Mini/i.test(navigator.userAgent)) {
+      Battleship.mobile = true
+    }
+
     GameDrawer.initialize()
 
     let uname = getStored('name')
@@ -734,10 +763,14 @@
     })
 
     io.on('destroy_turn', (val) => {
-      GameDrawer.placingShips = false
+      if (GameDrawer.placingShips) {
+        Battleship.DOM.mobRotate.style.display = 'none'
+        GameDrawer.placingShips = false
+      }
+
       if (val === true) {
         Battleship.Game.myTurn = true
-        logStatus('It\'s your turn!<br>Click anywhere on the grid to attempt to destroy enemy ships.')
+        logStatus('It\'s your turn!')
       } else {
         Battleship.Game.myTurn = false
         logStatus(Battleship.Game.opponentName + '\'s turn.')

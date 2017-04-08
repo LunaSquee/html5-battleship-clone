@@ -29,7 +29,7 @@
 				<div class="box">
 					<h1>Statistics</h1>
 					<span class="stat">Players online: <span id="stats_players_online"></span></span>
-					<span class="stat">Players in game: <span id="stats_players"></span></span>
+					<span class="stat">Games in progress: <span id="stats_players"></span></span>
 					<span class="stat">Total games since server started: <span id="stats_games"></span></span>
 					<span class="stat">You've played in <span id="stats_clientgames"></span> matches this session.</span>
 				</div> 
@@ -47,7 +47,7 @@
 				</div> 
 				<div class="box">
 					<h1>How to play</h1>
-					<p>This is a guessing game inspired by <a href="https://en.wikipedia.org/wiki/Battleship_(game)" target="_blank">Battleship</a>, however this one works quite differently.</p>
+					<p>This is a web version of <a href="https://en.wikipedia.org/wiki/Battleship_(game)" target="_blank">Battleship</a> with a few differences.</p>
 					<ul>
 						<li>You start off by placing your ships onto the board.</li>
 						<li>Once you and your opponent finish placing the ships, the game begins.</li>
@@ -69,6 +69,7 @@
 						<div class="letterbox" id="messages"></div>
 						<input type="text" id="message_send" placeholder="Send message..">
 					</div>
+					<button id="mob_rotate" style="display: none;">Rotate Ship</button>
 				</div>
 			</div>
 			<div class="screen endresult" style="display: none;" id="endresult">
